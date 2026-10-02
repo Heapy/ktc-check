@@ -1,4 +1,4 @@
-name: Heapy Kotlin Toolchain Check
+name: Kotlin Toolchain Check
 description: Build and run Kotlin Toolchain checks with JUnit summaries, failure annotations, and report artifacts
 branding:
   icon: check-circle
