@@ -1,3 +1,6 @@
+// Copyright 2026 Heapy
+// SPDX-License-Identifier: Apache-2.0
+
 import { readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';

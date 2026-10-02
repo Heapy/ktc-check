@@ -49,3 +49,8 @@ passing and deliberately failing Kotlin fixture on Linux, macOS, and Windows.
 - [setup-kotlin-toolchain](https://github.com/Heapy/setup-kotlin-toolchain)
 - [update-kotlin-toolchain](https://github.com/Heapy/update-kotlin-toolchain)
 - [kotlin-toolchain-publish](https://github.com/Heapy/kotlin-toolchain-publish)
+
+## License
+
+Apache License 2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE). Third-party
+components retain their original licenses.
