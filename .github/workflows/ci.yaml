@@ -1,0 +1,58 @@
+name: CI
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025, macos-15]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - name: Verify checked-in bundle
+        run: git diff --exit-code -- dist/
+      - uses: Heapy/setup-kotlin-toolchain@f80139b381c1420d246b5ab04b5e6888eda5a0fe # v1 candidate
+        with:
+          version: 0.13.0
+      - uses: ./
+        id: passing
+        with:
+          working-directory: test/fixtures/jvm
+          artifact-name: passing-${{ runner.os }}
+      - name: Verify passing test count and introduce a failing fixture
+        env:
+          TESTS: ${{ steps.passing.outputs.tests }}
+        run: |
+          test "$TESTS" = '1'
+          node -e "const fs=require('fs');const p='test/fixtures/jvm/test/WorldTest.kt';fs.writeFileSync(p,fs.readFileSync(p,'utf8').replace('assertEquals(\"World\"', 'assertEquals(\"Unexpected\"'));"
+      - uses: ./
+        id: failing
+        continue-on-error: true
+        with:
+          working-directory: test/fixtures/jvm
+          artifact-name: failing-${{ runner.os }}
+      - name: Verify failing tests fail the action and still produce counts
+        env:
+          OUTCOME: ${{ steps.failing.outcome }}
+          FAILURES: ${{ steps.failing.outputs.failures }}
+        run: |
+          test "$OUTCOME" = 'failure'
+          test "$FAILURES" = '1'

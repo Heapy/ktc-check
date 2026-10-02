@@ -1,0 +1,66 @@
+name: Heapy Kotlin Toolchain Check
+description: Build and run Kotlin Toolchain checks with JUnit summaries, failure annotations, and report artifacts
+branding:
+  icon: check-circle
+  color: purple
+inputs:
+  working-directory:
+    description: Project directory relative to the workspace
+    default: .
+  checks:
+    description: Comma or whitespace separated check names; empty runs all registered checks
+    default: ''
+  modules:
+    description: Comma or whitespace separated module names; empty selects all
+    default: ''
+  skip:
+    description: Comma or whitespace separated checks to skip
+    default: ''
+  build:
+    description: Build before running checks
+    default: 'true'
+  upload-reports:
+    description: Upload available test reports even when checks fail
+    default: 'true'
+  artifact-name:
+    description: Unique artifact name; customize when using multiple matrix entries on the same platform
+    default: kotlin-reports-${{ runner.os }}-${{ runner.arch }}-${{ github.job }}
+outputs:
+  tests:
+    description: Number of tests in fresh JUnit reports
+    value: ${{ steps.check.outputs.tests }}
+  failures:
+    description: Number of test failures
+    value: ${{ steps.check.outputs.failures }}
+  errors:
+    description: Number of test errors
+    value: ${{ steps.check.outputs.errors }}
+  skipped:
+    description: Number of skipped tests
+    value: ${{ steps.check.outputs.skipped }}
+  exit-code:
+    description: CLI or reporting exit status
+    value: ${{ steps.check.outputs.exit-code }}
+runs:
+  using: composite
+  steps:
+    - name: Build, check, and summarize
+      id: check
+      shell: bash
+      env:
+        ACTION_DIRECTORY: ${{ github.action_path }}
+        INPUT_DIRECTORY: ${{ inputs.working-directory }}
+        INPUT_CHECKS: ${{ inputs.checks }}
+        INPUT_MODULES: ${{ inputs.modules }}
+        INPUT_SKIP: ${{ inputs.skip }}
+        INPUT_BUILD: ${{ inputs.build }}
+        INPUT_UPLOAD: ${{ inputs.upload-reports }}
+      run: node "$ACTION_DIRECTORY/dist/index.mjs"
+    - name: Upload test reports
+      if: ${{ always() && !cancelled() && inputs.upload-reports == 'true' && steps.check.outputs.reports-path != '' }}
+      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: ${{ steps.check.outputs.reports-path }}
+        if-no-files-found: ignore
+        retention-days: 7

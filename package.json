@@ -1,0 +1,21 @@
+{
+  "name": "kotlin-toolchain-check",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "check": "node --check scripts/main.mjs",
+    "build": "esbuild scripts/main.mjs --bundle --platform=node --format=esm --target=node22 --outfile=dist/index.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "fast-xml-parser": "5.11.2"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  }
+}
