@@ -1,4 +1,4 @@
-# kotlin-toolchain-check
+# ktc-check
 
 Build and run registered **JetBrains Kotlin Toolchain** checks with GitHub job
 summaries, JUnit failure annotations, and test-report artifacts. Works on Linux,
@@ -9,8 +9,8 @@ permissions:
   contents: read
 steps:
   - uses: actions/checkout@v7
-  - uses: Heapy/setup-kotlin-toolchain@v1
-  - uses: Heapy/kotlin-toolchain-check@v1
+  - uses: Heapy/setup-ktc@v1
+  - uses: Heapy/ktc-check@v1
 ```
 
 Use release commit SHAs for immutable action references. This action does not
@@ -46,9 +46,9 @@ passing and deliberately failing Kotlin fixture on Linux, macOS, and Windows.
 
 ## Related actions
 
-- [setup-kotlin-toolchain](https://github.com/Heapy/setup-kotlin-toolchain)
-- [update-kotlin-toolchain](https://github.com/Heapy/update-kotlin-toolchain)
-- [kotlin-toolchain-publish](https://github.com/Heapy/kotlin-toolchain-publish)
+- [setup-ktc](https://github.com/Heapy/setup-ktc)
+- [update-ktc](https://github.com/Heapy/update-ktc)
+- [ktc-publish](https://github.com/Heapy/ktc-publish)
 
 ## License
 

@@ -4177,7 +4177,7 @@ async function executable(directory, env = process.env, local = false) {
     } catch {
     }
   }
-  throw new Error("Kotlin Toolchain is unavailable. Run Heapy/setup-kotlin-toolchain first.");
+  throw new Error("Kotlin Toolchain is unavailable. Run Heapy/setup-ktc first.");
 }
 function run(exe, args, { cwd, env = process.env, quiet = false, timeout = 20 * 6e4 } = {}) {
   let command = exe, argv = args;
@@ -4211,7 +4211,7 @@ function run(exe, args, { cwd, env = process.env, quiet = false, timeout = 20 * 
 }
 function requireToolchain(exe, cwd, env = process.env) {
   const result = run(exe, ["--version"], { cwd, env, quiet: true });
-  if (result.status !== 0 || !/Kotlin Toolchain version /.test(result.stdout)) throw new Error("Expected JetBrains Kotlin Toolchain; install it with Heapy/setup-kotlin-toolchain");
+  if (result.status !== 0 || !/Kotlin Toolchain version /.test(result.stdout)) throw new Error("Expected JetBrains Kotlin Toolchain; install it with Heapy/setup-ktc");
   return result.stdout.trim();
 }
 
