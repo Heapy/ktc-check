@@ -24,10 +24,26 @@ need `checks: write`, so it also works on fork pull requests.
 | `platforms` | empty | Comma/whitespace-separated build and test platforms; empty uses CLI defaults |
 | `skip` | empty | Checks to skip, such as `tests` |
 | `build` | `true` | Compile before checking |
+| `command-timeout-minutes` | `20` | Positive integer timeout in minutes for each CLI command, separately for builds and tests |
 | `upload-reports` | `true` | Upload reports even when checks fail |
 | `artifact-name` | OS/architecture/job based | Override for matrix entries sharing a platform |
 
 Outputs: `tests`, `failures`, `errors`, `skipped`, and `exit-code`.
+
+### Command timeout
+
+Each CLI command has its own 20-minute timeout by default. Builds and tests each
+receive the full limit. Increase it for large projects or builds with a cold cache:
+
+```yaml
+- uses: Heapy/ktc-check@v1
+  with:
+    command-timeout-minutes: 40
+```
+
+The workflow job's `timeout-minutes` limits the entire job independently; increasing
+it does not increase this action's command timeout. Set the job limit high enough
+to cover all build, test, and other steps.
 
 ### Platform selection
 

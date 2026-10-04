@@ -22,6 +22,9 @@ inputs:
   build:
     description: Build before running checks
     default: 'true'
+  command-timeout-minutes:
+    description: Timeout in minutes for each CLI command, applied separately to builds and tests; positive integer
+    default: '20'
   upload-reports:
     description: Upload available test reports even when checks fail
     default: 'true'
@@ -58,6 +61,7 @@ runs:
         INPUT_PLATFORMS: ${{ inputs.platforms }}
         INPUT_SKIP: ${{ inputs.skip }}
         INPUT_BUILD: ${{ inputs.build }}
+        INPUT_COMMAND_TIMEOUT_MINUTES: ${{ inputs.command-timeout-minutes }}
         INPUT_UPLOAD: ${{ inputs.upload-reports }}
       run: node "$ACTION_DIRECTORY/dist/index.mjs"
     - name: Upload test reports

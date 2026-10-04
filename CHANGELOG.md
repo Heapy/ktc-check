@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.1
+
+- Add `command-timeout-minutes` to configure the timeout for each CLI command,
+  including separate build and test invocations. The default remains 20 minutes.
+
 ## 1.1.0
 
 - Add a `platforms` input for host-specific builds and tests, preserving module and

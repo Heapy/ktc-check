@@ -71,8 +71,8 @@ export function run(exe, args, { cwd, env = process.env, quiet = false, timeout 
   if (result.error) throw result.error;
   return { status: result.status ?? 1, stdout: result.stdout || '', stderr: result.stderr || '' };
 }
-export function requireToolchain(exe, cwd, env = process.env) {
-  const result = run(exe, ['--version'], { cwd, env, quiet: true });
+export function requireToolchain(exe, cwd, env = process.env, timeout) {
+  const result = run(exe, ['--version'], { cwd, env, quiet: true, timeout });
   if (result.status !== 0 || !/Kotlin Toolchain version /.test(result.stdout)) throw new Error('Expected JetBrains Kotlin Toolchain; install it with Heapy/setup-ktc');
   return result.stdout.trim();
 }
