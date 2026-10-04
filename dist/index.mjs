@@ -4224,6 +4224,31 @@ function checkArguments(env) {
     ...names(env.INPUT_SKIP || "", "skip").flatMap((name) => ["--skip", name])
   ];
 }
+function commands(env, build) {
+  const platforms = names(env.INPUT_PLATFORMS || "", "platforms").flatMap((name) => ["--platform", name]);
+  const modules = names(env.INPUT_MODULES || "", "modules");
+  const moduleArgs = modules.flatMap((name) => ["--module", name]);
+  const checkArgs = checkArguments(env);
+  const result = build ? [["build", ...moduleArgs, ...platforms]] : [];
+  if (!platforms.length) return [...result, checkArgs];
+  const checks = names(env.INPUT_CHECKS || "", "checks");
+  const skip = names(env.INPUT_SKIP || "", "skip");
+  if ((!checks.length || checks.includes("tests")) && !skip.includes("tests")) {
+    result.push(["test", ...modules.flatMap((name) => ["--include-module", name]), ...platforms]);
+  }
+  if (!checks.length) {
+    result.push(["show", "checks", "--format", "plain", ...moduleArgs]);
+    result.push([
+      "check",
+      ...moduleArgs,
+      ...[.../* @__PURE__ */ new Set([...skip, "tests"])].flatMap((name) => ["--skip", name])
+    ]);
+  } else {
+    const pluginChecks = checks.filter((name) => name !== "tests" && !skip.some((skipped) => skipped === name || !skipped.includes(":") && name.split(":").at(-1) === skipped));
+    if (pluginChecks.length) result.push(["check", ...pluginChecks, ...moduleArgs]);
+  }
+  return result;
+}
 function parseReport(xml) {
   if (/<!DOCTYPE|<!ENTITY/i.test(xml)) throw new Error("DTD/entity declarations are not allowed in test reports");
   if (XMLValidator.validate(xml) !== true) throw new Error("Malformed test report XML");
@@ -4271,13 +4296,17 @@ async function check(env = process.env) {
   const cwd = await projectDirectory(env.INPUT_DIRECTORY, env);
   const build = bool(env.INPUT_BUILD ?? "true", "build");
   bool(env.INPUT_UPLOAD ?? "true", "upload-reports");
-  const args = checkArguments(env);
+  const invocations = commands(env, build);
   const cli = await executable(cwd, env);
   const toolchain = requireToolchain(cli, cwd, env);
   const started = Date.now();
   let exitCode = 0;
-  if (build) exitCode = run(cli, ["build", ...names(env.INPUT_MODULES || "", "modules").flatMap((name) => ["--module", name])], { cwd, env }).status;
-  if (!exitCode) exitCode = run(cli, args, { cwd, env }).status;
+  for (const args of invocations) {
+    const result = run(cli, args, { cwd, env, quiet: args[0] === "show" });
+    exitCode = result.status;
+    if (exitCode) break;
+    if (args[0] === "show" && !names(result.stdout, "available checks").some((name) => name !== "tests")) break;
+  }
   const totals = { tests: 0, failures: 0, errors: 0, skipped: 0 };
   let reports = 0, parseErrors = 0;
   for (const file of await reportFiles(path2.join(cwd, "build", "reports"))) {

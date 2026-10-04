@@ -13,6 +13,9 @@ inputs:
   modules:
     description: Comma or whitespace separated module names; empty selects all
     default: ''
+  platforms:
+    description: Comma or whitespace separated platforms for build and built-in tests; empty uses CLI defaults
+    default: ''
   skip:
     description: Comma or whitespace separated checks to skip
     default: ''
@@ -52,6 +55,7 @@ runs:
         INPUT_DIRECTORY: ${{ inputs.working-directory }}
         INPUT_CHECKS: ${{ inputs.checks }}
         INPUT_MODULES: ${{ inputs.modules }}
+        INPUT_PLATFORMS: ${{ inputs.platforms }}
         INPUT_SKIP: ${{ inputs.skip }}
         INPUT_BUILD: ${{ inputs.build }}
         INPUT_UPLOAD: ${{ inputs.upload-reports }}

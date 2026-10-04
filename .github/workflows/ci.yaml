@@ -36,6 +36,7 @@ jobs:
         id: passing
         with:
           working-directory: test/fixtures/jvm
+          platforms: jvm
           artifact-name: passing-${{ runner.os }}
       - name: Verify passing test count and introduce a failing fixture
         env:
@@ -48,6 +49,7 @@ jobs:
         continue-on-error: true
         with:
           working-directory: test/fixtures/jvm
+          platforms: jvm
           artifact-name: failing-${{ runner.os }}
       - name: Verify failing tests fail the action and still produce counts
         env:

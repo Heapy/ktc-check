@@ -21,12 +21,63 @@ need `checks: write`, so it also works on fork pull requests.
 | `working-directory` | `.` | Project folder relative to the workspace |
 | `checks` | empty | Run all checks, or select comma/whitespace-separated names |
 | `modules` | empty | Select modules; empty selects all |
+| `platforms` | empty | Comma/whitespace-separated build and test platforms; empty uses CLI defaults |
 | `skip` | empty | Checks to skip, such as `tests` |
 | `build` | `true` | Compile before checking |
 | `upload-reports` | `true` | Upload reports even when checks fail |
 | `artifact-name` | OS/architecture/job based | Override for matrix entries sharing a platform |
 
 Outputs: `tests`, `failures`, `errors`, `skipped`, and `exit-code`.
+
+### Platform selection
+
+Select the targets supported by each compiler host directly in the action:
+
+```yaml
+- uses: Heapy/ktc-check@v1
+  with:
+    checks: tests
+    platforms: linuxX64, jvm
+    artifact-name: kotlin-reports-linuxX64
+```
+
+Use the following target names for Kotlin Toolchain 0.13.0, as listed in its
+[supported platforms documentation](https://github.com/JetBrains/kotlin-toolchain/blob/v0.13.0/docs/src/user-guide/multiplatform.md#supported-platforms):
+
+| Target group | Platform names |
+|---|---|
+| JVM | `jvm` |
+| Android | `android` |
+| JavaScript | `js` |
+| WebAssembly | `wasmJs`, `wasmWasi` |
+| Linux | `linuxX64`, `linuxArm64` |
+| Windows | `mingwX64` |
+| macOS | `macosArm64`, `macosX64` (deprecated) |
+| iOS | `iosArm64`, `iosSimulatorArm64`, `iosX64` |
+| watchOS | `watchosArm32` (deprecated), `watchosArm64`, `watchosDeviceArm64`, `watchosSimulatorArm64` |
+| tvOS | `tvosArm64`, `tvosSimulatorArm64`, `tvosX64` (deprecated) |
+| Android Native | `androidNativeArm32`, `androidNativeArm64`, `androidNativeX64`, `androidNativeX86` |
+
+Choose targets declared by your modules. This list describes toolchain target
+identifiers; build and test support depends on the module's product type, the
+toolchain version, and the runner. The toolchain does not support or test all
+targets equally.
+
+With `platforms` set, the action forwards each platform to `kotlin build` and runs
+the built-in `tests` check through `kotlin test --platform ...`. Toolchain 0.13's
+`kotlin check` does not accept platform selection, so remaining plugin checks run
+separately with the selected modules. For default check selection, the action uses
+`kotlin show checks --format plain` to discover plugin checks before running
+`kotlin check --skip tests`; projects with only built-in tests skip that extra
+check invocation. Explicitly selected plugin checks run by name. Plugin checks themselves
+retain their normal platform behavior. An empty `platforms` input preserves the
+existing build/check commands. `checks`, `skip`, and `build: false` still apply;
+selecting only plugin checks does not run tests.
+
+Build prerequisites such as frontend assets before invoking the action. If a
+separate step already built the required executables, use `build: false`. Select
+only platforms that can be tested on the runner; cross-compiling an executable
+does not make that runner able to execute it.
 
 `kotlin check` includes tests and registered plugin checks. JUnit XML is collected
 from `build/reports/**/TEST-*.xml`. Only reports freshly written by this invocation
