@@ -41,6 +41,28 @@ Select the targets supported by each compiler host directly in the action:
     artifact-name: kotlin-reports-linuxX64
 ```
 
+Use the following target names for Kotlin Toolchain 0.13.0, as listed in its
+[supported platforms documentation](https://github.com/JetBrains/kotlin-toolchain/blob/v0.13.0/docs/src/user-guide/multiplatform.md#supported-platforms):
+
+| Target group | Platform names |
+|---|---|
+| JVM | `jvm` |
+| Android | `android` |
+| JavaScript | `js` |
+| WebAssembly | `wasmJs`, `wasmWasi` |
+| Linux | `linuxX64`, `linuxArm64` |
+| Windows | `mingwX64` |
+| macOS | `macosArm64`, `macosX64` (deprecated) |
+| iOS | `iosArm64`, `iosSimulatorArm64`, `iosX64` |
+| watchOS | `watchosArm32` (deprecated), `watchosArm64`, `watchosDeviceArm64`, `watchosSimulatorArm64` |
+| tvOS | `tvosArm64`, `tvosSimulatorArm64`, `tvosX64` (deprecated) |
+| Android Native | `androidNativeArm32`, `androidNativeArm64`, `androidNativeX64`, `androidNativeX86` |
+
+Choose targets declared by your modules. This list describes toolchain target
+identifiers; build and test support depends on the module's product type, the
+toolchain version, and the runner. The toolchain does not support or test all
+targets equally.
+
 With `platforms` set, the action forwards each platform to `kotlin build` and runs
 the built-in `tests` check through `kotlin test --platform ...`. Toolchain 0.13's
 `kotlin check` does not accept platform selection, so remaining plugin checks run
