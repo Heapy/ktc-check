@@ -2,7 +2,7 @@
 
 Runtime dependency licenses for the distributed check-action bundle.
 
-## fast-xml-parser 5.11.2
+## fast-xml-parser 5.12.0
 
 MIT License
 
@@ -77,7 +77,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 
-## is-unsafe 2.0.2
+## is-unsafe 2.0.3
 
 MIT License
 
@@ -127,7 +127,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 
-## strnum 2.4.2
+## strnum 2.5.1
 
 MIT License
 
