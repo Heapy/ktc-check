@@ -275,7 +275,7 @@ function scanAttributeTokens(attrStr) {
     while (i < len && isWhiteSpace(attrStr[i])) i++;
     if (i >= len) break;
     if (attrStr[i] === "=") {
-      i = tokenStart + 1;
+      i++;
       continue;
     }
     const leadingWs = attrStr.slice(tokenStart, i);
@@ -3495,7 +3495,10 @@ function resolveNameSpace(tagname) {
   }
   return tagname;
 }
-var attrsRegx = new RegExp(`([^\\s=]+)\\s*(=\\s*(['"])([\\s\\S]*?)\\3)?`, "gm");
+var attrsRegx = /([^\s=]+)\s*(=\s*(?:"([^"]*)"|'([^']*)'))?/gm;
+function attrValue(match) {
+  return match[3] !== void 0 ? match[3] : match[4];
+}
 function buildAttributesMap(attrStr, jPath, tagName, force = false) {
   const options = this.options;
   if (force === true || options.ignoreAttributes !== true && typeof attrStr === "string") {
@@ -3507,7 +3510,7 @@ function buildAttributesMap(attrStr, jPath, tagName, force = false) {
     const rawAttrsForMatcher = {};
     for (let i = 0; i < len; i++) {
       const attrName = this.resolveNameSpace(matches[i][1]);
-      const oldVal = matches[i][4];
+      const oldVal = attrValue(matches[i]);
       if (attrName.length && oldVal !== void 0) {
         let val = oldVal;
         if (options.trimValues) val = val.trim();
@@ -3531,7 +3534,7 @@ function buildAttributesMap(attrStr, jPath, tagName, force = false) {
           aName = options.transformAttributeName(aName);
         }
         aName = sanitizeName(aName, options);
-        if (matches[i][4] !== void 0) {
+        if (attrValue(matches[i]) !== void 0) {
           const oldVal = processedVals[i];
           const newVal = options.attributeValueProcessor(attrName, oldVal, jPathStr);
           if (newVal === null || newVal === void 0) {
@@ -3847,7 +3850,6 @@ function isItStopNode() {
   return this.matcher.matchesAny(this.stopNodeExpressionsSet);
 }
 function tagExpWithClosingIndex(xmlData, i, closingChar = ">") {
-  let attrBoundary = 0;
   const len = xmlData.length;
   const closeCode0 = closingChar.charCodeAt(0);
   const closeCode1 = closingChar.length > 1 ? closingChar.charCodeAt(1) : -1;
@@ -3855,10 +3857,9 @@ function tagExpWithClosingIndex(xmlData, i, closingChar = ">") {
   let segmentStart = i;
   for (let index = i; index < len; index++) {
     const code = xmlData.charCodeAt(index);
-    if (attrBoundary) {
-      if (code === attrBoundary) attrBoundary = 0;
-    } else if (code === 34 || code === 39) {
-      attrBoundary = code;
+    if (code === 34 || code === 39) {
+      index = xmlData.indexOf(xmlData[index], index + 1);
+      if (index === -1) return;
     } else if (code === closeCode0) {
       if (closeCode1 !== -1) {
         if (xmlData.charCodeAt(index + 1) === closeCode1) {
@@ -3869,7 +3870,7 @@ function tagExpWithClosingIndex(xmlData, i, closingChar = ">") {
         result += xmlData.substring(segmentStart, index);
         return { data: result, index };
       }
-    } else if (code === 9 && !attrBoundary) {
+    } else if (code === 9) {
       result += xmlData.substring(segmentStart, index) + " ";
       segmentStart = index + 1;
     }
