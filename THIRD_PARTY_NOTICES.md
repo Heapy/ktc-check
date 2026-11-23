@@ -2,7 +2,7 @@
 
 Runtime dependency licenses for the distributed check-action bundle.
 
-## fast-xml-parser 5.12.0
+## fast-xml-parser 5.12.1
 
 MIT License
 
@@ -52,7 +52,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 
-## fast-xml-builder 1.3.1
+## fast-xml-builder 1.3.2
 
 MIT License
 
